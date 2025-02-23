@@ -1,0 +1,242 @@
+.guide-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.guide-content {
+    background: linear-gradient(to bottom, #2d1b4e, #1a0f2e);
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #b39ddb;
+    box-shadow: 0 0 20px rgba(179, 157, 219, 0.3);
+}
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.2), rgba(33, 150, 243, 0.2));
+    border-bottom: 2px solid #b39ddb;
+}
+
+.guide-header h2 {
+    margin: 0;
+    font-size: 2em;
+    background: linear-gradient(to right, #ffd700, #ffa500);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #b39ddb;
+    padding: 0 8px;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.guide-tabs {
+    display: flex;
+    border-bottom: 2px solid rgba(179, 157, 219, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.tab-button {
+    padding: 15px 25px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #b39ddb;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background: rgba(179, 157, 219, 0.1);
+    color: #ffd700;
+}
+
+.tab-button.active {
+    background: linear-gradient(to bottom, rgba(179, 157, 219, 0.2), transparent);
+    color: #ffd700;
+    border-bottom: 3px solid #ffd700;
+}
+
+.tab-content {
+    display: none;
+    padding: 25px;
+    overflow-y: auto;
+    color: #fff;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tower-info, .enemy-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+
+
+.tower-card:hover, .enemy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(179, 157, 219, 0.3);
+}
+
+
+.tower-card h3, .enemy-card h3 {
+    margin-top: 0;
+    /* color: #ffd700; */
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+} */
+
+.guide-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px;
+    background: linear-gradient(to bottom right, #2d1b4e, #1a0f2e);
+    border: 2px solid #b39ddb;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 100;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(179, 157, 219, 0.3);
+}
+
+.game-guide-button {
+    position: fixed;
+    top: 20px;
+    right: 280px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2d1b4e, #1a0f2e);
+    border: 2px solid #b39ddb;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(179, 157, 219, 0.3);
+    padding: 0;
+    color: #b39ddb;
+}
+
+.game-guide-button:hover {
+    transform: scale(1.1);
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.game-guide-button:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Add a pulsing animation */
+@keyframes pulse {
+    0% { box-shadow: 0 0 15px rgba(179, 157, 219, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(179, 157, 219, 0.5); }
+    100% { box-shadow: 0 0 15px rgba(179, 157, 219, 0.3); }
+}
+
+.game-guide-button {
+    animation: pulse 2s infinite;
+}
+
+.game-guide-button:hover {
+    animation: none;
+}
+
+.guide-button:hover {
+    transform: scale(1.1);
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* Custom scrollbar for the guide */
+.tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: rgba(179, 157, 219, 0.1);
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: rgba(179, 157, 219, 0.5);
+    border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(179, 157, 219, 0.7);
+}
+
+/* Additional text styling */
+.tab-content p {
+    color: #b39ddb;
+    line-height: 1.6;
+}
+
+.tab-content ul {
+    color: #b39ddb;
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.tab-content ul li {
+    margin: 10px 0;
+    position: relative;
+}
+
+.tab-content ul li:before {
+    content: "►";
+    color: #ffd700;
+    position: absolute;
+    left: -20px;
+    top: 0;
+    font-size: 0.8em;
+}
+
+
+#musicToggle {
+    top: 20px;
+    right: 215px; /* Position it to the left of the guide button */
+}
+

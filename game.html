@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Fortress Frenzy TD</title>
+    <link rel="stylesheet" href="/CSS/index.css" />
+    <link rel="stylesheet" href="/CSS/guide.css" />
+  </head>
+  <body>
+    <main>
+      <header></header>
+
+      <button id="guide-button" class="game-guide-button" onclick="openGuide()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12" y2="17"></line>
+        </svg>
+      </button>
+
+      <audio id="bgMusic" loop>
+        <source
+          src="assets/music/medieval-adventure-270566.mp3"
+          type="audio/mpeg"
+        />
+        Your browser does not support the audio element.
+      </audio>
+
+      <button id="musicToggle" class="game-guide-button">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+
+      <div id="tower-selection">
+        <div class="tower-card selected" data-tower-type="default">
+          <div class="tower-cost">25</div>
+          <img
+            src="assets/tower_sprites/DefaultTower_alone.png"
+            alt="Default Tower"
+          />
+          <div class="tower-card-details">
+            <h3>Archer</h3>
+          </div>
+        </div>
+        <div class="tower-card" data-tower-type="splash">
+          <div class="tower-cost">50</div>
+          <img
+            src="assets/tower_sprites/splash_tower_alone.png"
+            alt="Splash Tower"
+          />
+          <div class="tower-card-details">
+            <h3>Bomb</h3>
+          </div>
+        </div>
+        <div class="tower-card" data-tower-type="xray">
+          <div class="tower-cost">80</div>
+          <img src="assets/tower_sprites/xray_alone.png" alt="X-Ray Tower" />
+          <div class="tower-card-details">
+            <h3>X-Ray</h3>
+          </div>
+        </div>
+        <div class="tower-card" data-tower-type="sniper">
+          <div class="tower-cost">90</div>
+          <img
+            src="assets/tower_sprites/sniper_tower_alone.png"
+            alt="Sniper Tower"
+          />
+          <div class="tower-card-details">
+            <h3>Sniper</h3>
+          </div>
+        </div>
+        <div class="tower-card" data-tower-type="freezing">
+          <div class="tower-cost">75</div>
+          <img
+            src="assets/tower_sprites/ice_tower_alone.png"
+            alt="Freezing Tower"
+          />
+          <div class="tower-card-details">
+            <h3>Ice</h3>
+          </div>
+        </div>
+        <div class="tower-card" data-tower-type="airdefence">
+          <div class="tower-cost">80</div>
+          <img
+            src="assets/tower_sprites/air_defence_alone.png"
+            alt="Air Defence Tower"
+          />
+          <div class="tower-card-details">
+            <h3>Air Defence</h3>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-timer-container" style="display: none">
+        <div id="game-timer-circle">
+          <span id="game-timer-text"></span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <div id="enemy-controller" style="display: none">
+          <h3>Enemy Controller (Player 2)</h3>
+          <p>Use Arrow Keys to Navigate</p>
+          <p>
+            <strong>Selected Enemy:</strong>
+            <span id="selected-enemy">Basic</span>
+          </p>
+          <p>
+            <strong>Currency:</strong> <span id="player2-currency">100</span>
+          </p>
+          <p>Press <strong>Enter</strong> to Send</p>
+          <div id="enemy-selection"></div>
+        </div>
+
+        <canvas></canvas>
+
+        <div id="tower-overlay" style="display: none">
+          <h2>Tower Stats</h2>
+          <p><strong>Type:</strong> <span id="tower-type"></span></p>
+          <p><strong>Level:</strong> <span id="tower-level"></span></p>
+          <p><strong>Range:</strong> <span id="tower-range"></span></p>
+          <p><strong>Damage:</strong> <span id="tower-damage"></span></p>
+          <p>
+            <strong>Fire Rate:</strong> <span id="tower-fireRate"></span> ms
+          </p>
+          <p><strong>Upgrade Cost:</strong> <span id="tower-cost"></span></p>
+          <button id="upgrade-tower-button">Upgrade</button>
+          <button id="sell-tower-button">Sell Tower</button>
+        </div>
+      </div>
+
+      <div id="spell-selection" class="spell-container">
+        <div class="spell-card">
+          <button id="fire-spell" class="spell-button">
+            <img src="assets/spells/fire.png" />
+            <span class="spell-quantity">0</span>
+            <div class="cooldown-overlay"></div>
+          </button>
+        </div>
+        <div class="spell-card">
+          <button id="freeze-spell" class="spell-button">
+            <img src="assets/spells/freeze.png" />
+            <span class="spell-quantity">0</span>
+            <div class="cooldown-overlay"></div>
+          </button>
+          <div class="spell-card">
+            <button id="rage-spell" class="spell-button">
+              <img src="assets/spells/rage.png" />
+              <span class="spell-quantity">0</span>
+              <div class="cooldown-overlay"></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add more spell cards here -->
+      </div>
+
+      <audio id="uiClick">
+        <source src="assets/music/ui-click-43196.mp3" type="audio/mpeg" />
+      </audio>
+    </main>
+
+    </main>
+
+    <script src="/js_files/paths.js"></script>
+    <script src="/js_files/enemies.js"></script>
+    <script src="/js_files/placement_towers.js"></script>
+    <script src="/js_files/tower.js"></script>
+    <script src="/js_files/projectiles.js"></script>
+    <script src="/js_files/waves.js"></script>
+    <script src="/js_files/currency.js"></script>
+    <script src="/js_files/upgradeTowers.js"></script>
+    <script src="/js_files/gameover.js"></script>
+    <script src="/js_files/multiplayerMode.js"></script>
+    <script src="/js_files/arcadeMode.js"></script>
+    <script src="/js_files/spells.js"></script>
+
+    <script>
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+
+      let img = new Image();
+      let tiledMapData;
+      let selectedMode = localStorage.getItem("gameMode") || "classic";
+      let selectedMap = localStorage.getItem("selectedMap") || "map1";
+      let multiplayerActive = selectedMode === "multiplayer";
+      let arcadeActive = selectedMode === "arcade";
+
+      //   let path;
+      // enemies = [],
+      const projectiles = [];
+      // towers = [];
+      //let multiplayerActive = selectedMode === "multiplayer";
+
+      // Initialize game based on mode
+
+      let selectedSpell = null;
+
+      window.onload = function () {
+        if (multiplayerActive) {
+          startMultiplayerMode();
+        } else if (arcadeActive) {
+          startArcadeMode();
+        } else {
+          startClassicMode();
+        }
+      };
+
+      // Start Classic Mode
+      function startClassicMode() {
+        setupGameEnvironment();
+        setupMap();
+        initializeTimer("classic");
+        img.onload = () => requestAnimationFrame(updateClassicMode);
+      }
+
+      // Start Multiplayer Mode
+      function startMultiplayerMode() {
+        setupGameEnvironment();
+        setupMap();
+        document.getElementById("enemy-controller").style.display = "block"; // Show enemy controller
+        initializeTimer("multiplayer");
+        img.onload = () => requestAnimationFrame(updateMultiplayerMode);
+      }
+
+      // Arcade Mode
+      function startArcadeMode() {
+        setupGameEnvironment();
+        initializeArcadeLevel(level);
+        initializeTimer("arcade");
+        img.onload = () => requestAnimationFrame(updateArcadeMode);
+      }
+
+      // Setup game environment
+      function setupGameEnvironment() {
+        canvas.width = 1280;
+        canvas.height = 768;
+      }
+
+      // Setup map and paths
+      function setupMap() {
+        if (selectedMap === "map1") {
+          img.src = "assets/FotrtessFrenzyTDGameMap.png";
+          tiledMapData = tiledMapData_map1;
+          path = loadPathData("map1");
+        } else if (selectedMap === "map2") {
+          img.src = "assets/FortressFrenzyGameMap2.png";
+          tiledMapData = tiledMapData_map2;
+          path = loadPathData("map2");
+        }
+        mapto2Darray();
+      }
+
+      // Load path data
+      function loadPathData(map) {
+        if (map === "map1") return path;
+        return Math.random() < 0.5 ? pathMap2First : pathMap2Second;
+      }
+
+      // Game loops
+      let currentWaveIndex = 0;
+      let lastFrameTime = performance.now();
+
+      function updateClassicMode(currentTime) {
+        ctx.clearRect(0, 0, (canvas.width = 1280), (canvas.height = 768));
+        ctx.drawImage(img, 0, 0);
+
+        if (gameIsPaused) return;
+
+        if (playerHealth <= 0) {
+          showGameOver();
+          return; // Stop the game loop
+        }
+
+        if (currentWaveIndex < waves.length) {
+          const currentWave = waves[currentWaveIndex];
+          currentWave.spawnEnemy(currentTime, enemies, path);
+
+          if (currentWave.isWaveComplete() && enemies.length === 0) {
+            currentWaveIndex++;
+          }
+        }
+
+        const deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        enemies.forEach((enemy, index) => {
+          if (enemy.health <= 0) {
+            console.log("Enemy destroyed");
+            enemies.splice(index, 1); // Remove enemy from array
+          } else {
+            // Ensure every enemy is updated
+            if (typeof enemy.update === "function") {
+              enemy.update(currentTime); // Updates ThrowingEnemy
+            }
+
+            if (typeof enemy.updateAnimation === "function") {
+              enemy.updateAnimation(deltaTime); // Updates ThrowingEnemy
+            }
+
+            if (enemy instanceof DestroyerBossEnemy) {
+              enemy.move(towers, deltaTime); // Pass deltaTime for cooldown
+            } else {
+              enemy.move();
+            }
+
+            // Draw the enemy
+            enemy.draw(ctx);
+          }
+        });
+
+        drawCurrency(ctx);
+        drawHealth(ctx);
+        drawWaves(ctx);
+        // Update towers and projectiles
+        updateTowers(currentTime, enemies);
+        updateProjectiles();
+
+        // Draw placements, towers, and projectiles
+        showVaidPlacements();
+        drawTowers();
+        drawProjectiles();
+        drawTowerPreview();
+        drawActiveSpells(ctx);
+
+        // Highlight hovered tile if applicable
+        if (
+          hoveredTile.x !== -1 &&
+          hoveredTile.y !== -1 &&
+          canPlaceTower(hoveredTile.x, hoveredTile.y)
+        ) {
+          ctx.fillStyle = "rgba(0, 255, 0, 0.5)"; // Light green
+          ctx.fillRect(hoveredTile.x * 32, hoveredTile.y * 32, 32, 32);
+        }
+
+        // requestAnimationFrame(updateClassicMode);
+
+        animationFrameId = requestAnimationFrame(updateClassicMode);
+      }
+
+      function updateMultiplayerMode(currentTime) {
+        ctx.clearRect(0, 0, (canvas.width = 1280), (canvas.height = 768));
+        ctx.drawImage(img, 0, 0);
+
+        if (playerHealth <= 0) {
+          showGameOver();
+          return; // Stop the game loop
+        }
+
+        // if (currentWaveIndex < waves.length) {
+        //   const currentWave = waves[currentWaveIndex];
+        //   currentWave.spawnEnemy(currentTime, enemies, path);
+
+        //   if (currentWave.isWaveComplete() && enemies.length === 0) {
+        //     currentWaveIndex++;
+        //   }
+        // }
+
+        const deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        // Auto-spawn BasicEnemies
+        autoSpawnBasicEnemy(deltaTime, enemies, path);
+
+        enemies.forEach((enemy, index) => {
+          if (enemy.health <= 0) {
+            console.log("Enemy destroyed");
+            enemies.splice(index, 1); // Remove enemy from array
+          } else {
+            // Ensure every enemy is updated
+            if (typeof enemy.update === "function") {
+              enemy.update(currentTime); // Updates ThrowingEnemy
+            }
+
+            if (typeof enemy.updateAnimation === "function") {
+              enemy.updateAnimation(deltaTime); // Updates ThrowingEnemy
+            }
+
+            if (enemy instanceof DestroyerBossEnemy) {
+              enemy.move(towers, deltaTime); // Pass deltaTime for cooldown
+            } else {
+              enemy.move();
+            }
+
+            // Draw the enemy
+            enemy.draw(ctx);
+          }
+        });
+
+        drawCurrency(ctx);
+        drawHealth(ctx);
+        // Update towers and projectiles
+        updateTowers(currentTime, enemies);
+        updateProjectiles();
+
+        // Draw placements, towers, and projectiles
+        showVaidPlacements();
+        drawTowers();
+        drawProjectiles();
+        drawTowerPreview();
+        drawActiveSpells(ctx);
+
+        // Highlight hovered tile if applicable
+        if (
+          hoveredTile.x !== -1 &&
+          hoveredTile.y !== -1 &&
+          canPlaceTower(hoveredTile.x, hoveredTile.y)
+        ) {
+          ctx.fillStyle = "rgba(0, 255, 0, 0.5)"; // Light green
+          ctx.fillRect(hoveredTile.x * 32, hoveredTile.y * 32, 32, 32);
+        }
+        //requestAnimationFrame(updateMultiplayerMode);
+
+        animationFrameId = requestAnimationFrame(updateMultiplayerMode);
+      }
+
+      let paths;
+      let level = parseInt(localStorage.getItem("arcadeLevel")) || 1; // Default to level 1 if not set
+      function initializeArcadeLevel(level) {
+        img.src = "/assets/FotrtessFrenzyTDGameMap.png";
+        paths = generateRandomPaths(level, 1280, 768);
+        tiledMapData = generateDualMap(32, 40, 24, paths);
+        map2DArray = tiledMapData;
+      }
+
+      function updateArcadeMode(currentTime) {
+        ctx.globalCompositeOperation = "source-over"; // Reset drawing mode
+        ctx.globalAlpha = 1.0; // Reset transparency
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (playerHealth <= 0) {
+          showGameOver();
+          return;
+        }
+
+        // 1. Draw background and path
+        drawPathWithBackground(
+          ctx,
+          paths,
+          canvas.width,
+          canvas.height,
+          32,
+          map2DArray
+        );
+
+        // 2. Game logic updates (without drawing)
+        if (currentWaveIndex < waves.length) {
+          const currentWave = waves[currentWaveIndex];
+          const pathIndex = level === 2 ? Math.floor(Math.random() * 2) : 0;
+          currentWave.spawnEnemy(currentTime, enemies, paths[pathIndex]);
+
+          if (currentWave.isWaveComplete() && enemies.length === 0) {
+            currentWaveIndex++;
+          }
+        }
+
+        const deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        // 3. Update entities (without drawing)
+        enemies.forEach((enemy, index) => {
+          if (enemy.health <= 0) {
+            enemies.splice(index, 1);
+          } else {
+            if (typeof enemy.update === "function") {
+              enemy.update(currentTime);
+            }
+            if (typeof enemy.updateAnimation === "function") {
+              enemy.updateAnimation(deltaTime);
+            }
+            if (enemy instanceof DestroyerBossEnemy) {
+              enemy.move(towers, deltaTime);
+            } else {
+              enemy.move();
+            }
+          }
+        });
+
+        updateTowers(currentTime, enemies);
+        updateProjectiles();
+
+        // 4. Draw layers in correct order
+        // 4.1 Draw valid placements
+        showVaidPlacements();
+
+        // 4.2 Draw tower preview and hover effects
+        if (
+          hoveredTile.x !== -1 &&
+          hoveredTile.y !== -1 &&
+          canPlaceTower(hoveredTile.x, hoveredTile.y)
+        ) {
+          ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+          ctx.fillRect(hoveredTile.x * 32, hoveredTile.y * 32, 32, 32);
+        }
+        drawTowerPreview();
+
+        // 4.3 Draw towers
+        drawTowers();
+
+        // 4.4 Draw enemies (on top of the path)
+        enemies.forEach((enemy) => {
+          ctx.save(); // Save the current context state
+          ctx.globalCompositeOperation = "source-over"; // Ensure normal drawing mode
+          ctx.globalAlpha = 1.0; // Reset transparency
+          enemy.draw(ctx);
+          ctx.restore(); // Restore the context state
+        });
+
+        // 4.5 Draw projectiles (above enemies)
+        drawProjectiles();
+
+        // 4.6 Draw active spells (top layer)
+        drawActiveSpells(ctx);
+
+        // 4.7 Draw UI elements (always on top)
+        drawCurrency(ctx);
+        drawHealth(ctx);
+        drawWaves(ctx);
+
+        animationFrameId = requestAnimationFrame(updateArcadeMode);
+      }
+
+      // Utility functions...
+
+      let selectedTowerType = "default";
+
+      const towerTypes = {
+        splash: { class: SplashTower, cost: 50 },
+        xray: { class: XRayTower, cost: 80 },
+        default: { class: Tower, cost: 25 },
+        sniper: { class: SniperTower, cost: 90 }, // Add sniper tower
+        freezing: { class: FreezingTower, cost: 75 }, // Add sniper tower
+        airdefence: { class: AirDefenseTower, cost: 80 }, // Add sniper tower
+      };
+
+      // Load map and start game loop once the image is loaded
+      //   img.onload = function () {
+      //     requestAnimationFrame(update);
+      //   };
+
+      // Get all tower buttons
+      const towerButtons = document.querySelectorAll(".tower-button");
+
+      // Add click event listener to each button
+      towerButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          // Remove "selected" class from all buttons
+          towerButtons.forEach((btn) => btn.classList.remove("selected"));
+
+          // Add "selected" class to the clicked button
+          button.classList.add("selected");
+
+          // Set the selected tower type based on button ID
+          selectedTowerType = button.id.replace("-tower", ""); // Removes '-tower' from ID
+          console.log(`Selected Tower: ${selectedTowerType}`);
+        });
+      });
+
+      const towerCards = document.querySelectorAll(".tower-card");
+
+      towerCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          playTowerButtonSound();
+          // Remove selected class from all cards
+          towerCards.forEach((c) => c.classList.remove("selected"));
+
+          // Add selected class to clicked card
+          card.classList.add("selected");
+
+          // Set selected tower type
+          selectedTowerType = card.dataset.towerType;
+          console.log(`Selected Tower: ${selectedTowerType}`);
+        });
+      });
+
+      let hoveredTile = { x: -1, y: -1 }; // Track the currently hovered tile
+
+      // Mousemove listener
+      canvas.addEventListener("mousemove", (event) => {
+        const mouseX = event.offsetX;
+        const mouseY = event.offsetY;
+
+        const tileX = Math.floor(mouseX / 32);
+        const tileY = Math.floor(mouseY / 32);
+
+        // Update hoveredTile
+        if (
+          tileX >= 0 &&
+          tileY >= 0 &&
+          tileY < map2DArray.length &&
+          tileX < map2DArray[0].length
+        ) {
+          hoveredTile.x = tileX;
+          hoveredTile.y = tileY;
+        } else {
+          hoveredTile.x = -1;
+          hoveredTile.y = -1;
+        }
+      });
+
+      // Click listener to place towers
+      canvas.addEventListener("click", (event) => {
+        const mouseX = event.offsetX;
+        const mouseY = event.offsetY;
+
+        // Convert mouse coordinates to grid position
+        const tileX = Math.floor(mouseX / 32);
+        const tileY = Math.floor(mouseY / 32);
+
+        // Check if a tower can be placed
+        if (canPlaceTower(tileX, tileY)) {
+          placeTower(tileX, tileY, selectedTowerType); // Pass the selected tower type
+          if (playerCurrency >= towerTypes[selectedTowerType].cost) {
+            placementSounds[selectedTowerType].play();
+          }
+        }
+      });
+
+
+      // Create audio pools for placement sounds for each tower type
+      const placementSounds = {
+        default: new AudioPool('assets/placement_tower_sound/house-building-89157.mp3'),
+        splash: new AudioPool('assets/placement_tower_sound/smoke-bomb-6761.mp3'),
+        xray: new AudioPool('assets/placement_tower_sound/beam-fire-282361.mp3'),
+        sniper: new AudioPool('assets/placement_tower_sound/futuristic-smg-sound-effect-100378.mp3'),
+        freezing: new AudioPool('assets/placement_tower_sound/glass-breaking-sound-effect-240679.mp3'),
+        airdefence: new AudioPool('assets/placement_tower_sound/sword-block-the-ballad-of-blades-257226.mp3')
+      };
+
+      canvas.addEventListener("click", (event) => {
+        const mouseX = event.offsetX;
+        const mouseY = event.offsetY;
+
+        if (selectedSpell === "fire") {
+          spells.fire.applyEffect(mouseX, mouseY, enemies);
+        } else if (selectedSpell === "freeze") {
+          spells.freeze.applyEffect(mouseX, mouseY, enemies);
+        } else if (selectedSpell === "rage") {
+          spells.rage.applyEffect(mouseX, mouseY, towers);
+        }
+      });
+
+      document.getElementById("fire-spell").addEventListener("click", () => {
+        if (selectedSpell === "fire") {
+          // If the fire spell is already selected, deselect it
+          deselectSpellButtons();
+          selectedSpell = null;
+          console.log("Fire Spell deselected.");
+        } else {
+          // Otherwise, select the fire spell
+          playTowerButtonSound()
+          deselectSpellButtons();
+          selectedSpell = "fire";
+          document.getElementById("fire-spell").classList.add("selected"); // Add active class to the button
+          console.log("Fire Spell selected.");
+        }
+      });
+
+      document.getElementById("freeze-spell").addEventListener("click", () => {
+        if (selectedSpell === "freeze") {
+          deselectSpellButtons();
+          selectedSpell = null;
+          console.log("Freeze Spell deselected.");
+        } else {
+          playTowerButtonSound();
+          deselectSpellButtons();
+          selectedSpell = "freeze";
+          document.getElementById("freeze-spell").classList.add("selected");
+          console.log("Freeze Spell selected.");
+        }
+      });
+
+      document.getElementById("rage-spell").addEventListener("click", () => {
+        if (selectedSpell === "rage") {
+          deselectSpellButtons();
+          selectedSpell = null;
+          console.log("Rage Spell deselected.");
+        } else {
+          playTowerButtonSound();
+          deselectSpellButtons();
+          selectedSpell = "rage";
+          document.getElementById("rage-spell").classList.add("selected");
+          console.log("Rage Spell selected.");
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        const canvas = document.querySelector("canvas");
+        const spellButtons = document.querySelectorAll(".spell-button");
+
+        // Check if the click is outside the canvas and spell buttons
+        const isOutsideCanvas = !canvas.contains(event.target);
+        const isOutsideSpellButtons = ![...spellButtons].some((button) =>
+          button.contains(event.target)
+        );
+
+        if (
+          isOutsideCanvas &&
+          isOutsideSpellButtons &&
+          selectedSpell !== null
+        ) {
+          deselectSpellButtons();
+          selectedSpell = null;
+          console.log("Spell deselected by clicking outside.");
+        }
+      });
+
+      let lastUpdateTime = 0;
+      function updateTowers(currentTime, enemies) {
+        const deltaTime = currentTime - lastUpdateTime; // Calculate time since last update
+        lastUpdateTime = currentTime;
+
+        for (let tower of towers) {
+          tower.update(currentTime);
+          tower.updateAnimation(deltaTime); // Update animation
+          tower.updateDisabledState(enemies);
+          tower.findTarget(enemies);
+          if (tower instanceof SplashTower) {
+            tower.attack(currentTime, projectiles, enemies);
+          } else if (tower instanceof XRayTower) {
+            tower.attack(currentTime, projectiles, enemies);
+          } else if (tower instanceof SniperTower) {
+            tower.attack(currentTime, projectiles);
+          } else if (tower instanceof FreezingTower) {
+            tower.attack(currentTime, projectiles, enemies);
+          } else {
+            tower.attack(currentTime, projectiles);
+          }
+        }
+      }
+
+      // Function to draw towers
+      function drawTowers() {
+        for (let tower of towers) {
+          ctx.globalAlpha = 1; // Ensure no transparency
+          if (tower === selectedTower) {
+            // Draw the range of the selected tower
+            ctx.beginPath();
+            ctx.arc(
+              tower.x * 32 + 16, // Tower center X (tile size: 32px, offset by 16px for center)
+              tower.y * 32 + 16, // Tower center Y
+              tower.range, // Use the tower's range property
+              0,
+              Math.PI * 2
+            );
+            ctx.fillStyle = "rgba(0, 0, 255, 0.2)"; // Transparent blue fill
+            ctx.fill();
+            ctx.strokeStyle = "blue"; // Blue border
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.strokeStyle = "yellow"; // Highlight selected tower
+            ctx.lineWidth = 5;
+            ctx.strokeRect(tower.x * 32, tower.y * 32, 32 * 2, 32);
+          }
+          tower.draw(ctx);
+        }
+      }
+
+      function updateProjectiles() {
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          projectiles[i].update();
+
+          // If projectile hits the target, apply damage and remove
+          if (projectiles[i].hasHitTarget()) {
+            projectiles[i].applyDamage();
+            projectiles.splice(i, 1);
+          }
+          // Otherwise, check if it's out of bounds and remove if so
+          else if (projectiles[i].isOutOfBounds(canvas)) {
+            projectiles.splice(i, 1);
+          }
+        }
+      }
+
+      function drawProjectiles() {
+        projectiles.forEach((projectile) => {
+          projectile.draw(ctx);
+        });
+      }
+
+      let selectedTower = null;
+
+      canvas.addEventListener("click", (event) => {
+        const mouseX = event.offsetX;
+        const mouseY = event.offsetY;
+
+        // Check if a tower is clicked
+        selectedTower = towers.find(
+          (tower) =>
+            mouseX >= tower.x * 32 &&
+            mouseX <= tower.x * 32 + 32 &&
+            mouseY >= tower.y * 32 &&
+            mouseY <= tower.y * 32 + 32
+        );
+
+        if (selectedTower) {
+          showTowerOverlay(selectedTower);
+        } else {
+          hideTowerOverlay();
+        }
+
+        if (selectedTower) {
+          console.log(
+            `Tower at (${selectedTower.x}, ${selectedTower.y}) selected.`
+          );
+        } else {
+          console.log("No tower selected.");
+        }
+      });
+
+      // Update the JavaScript to handle the SVG icon:
+      document.addEventListener("DOMContentLoaded", function () {
+        const bgMusic = document.getElementById("bgMusic");
+        bgMusic.volume = 0.2;
+        const musicToggle = document.getElementById("musicToggle");
+        const musicIcon = musicToggle.querySelector("svg");
+        let isMuted = false;
+
+        // Load music preference from localStorage
+        const musicPreference = localStorage.getItem("musicPreference");
+        if (musicPreference === "muted") {
+          isMuted = true;
+          bgMusic.muted = true;
+          updateMusicIcon(true);
+        }
+
+        // Function to update the SVG icon
+        function updateMusicIcon(muted) {
+          if (muted) {
+            musicIcon.innerHTML = `
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            `;
+          } else {
+            musicIcon.innerHTML = `
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            `;
+          }
+        }
+
+        // Function to play music
+        function playBackgroundMusic() {
+          const playPromise = bgMusic.play();
+
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("Playback prevented. Waiting for user interaction.");
+            });
+          }
+        }
+
+        // Toggle music on/off
+        musicToggle.addEventListener("click", () => {
+          if (isMuted) {
+            bgMusic.muted = false;
+            localStorage.setItem("musicPreference", "unmuted");
+          } else {
+            bgMusic.muted = true;
+            localStorage.setItem("musicPreference", "muted");
+          }
+          isMuted = !isMuted;
+          updateMusicIcon(isMuted);
+        });
+
+        // Start playing music on first user interaction
+        document.addEventListener(
+          "click",
+          function initMusic() {
+            playBackgroundMusic();
+            document.removeEventListener("click", initMusic);
+          },
+          { once: true }
+        );
+
+        // Handle page visibility changes
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            bgMusic.pause();
+          } else if (!isMuted) {
+            playBackgroundMusic();
+          }
+        });
+      });
+
+      function playTowerButtonSound() {
+        const sound = document.getElementById("uiClick");
+        if (sound) {
+          sound.currentTime = 0;
+          const playPromise = sound.play();
+
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("Sound playback failed:", error);
+            });
+          }
+        }
+      }
+
+
+    </script>
+
+    <script src="/js_files/guide.js"></script>
+    <!-- <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        initGuide();
+      });
+    </script> -->
+  </body>
+</html>

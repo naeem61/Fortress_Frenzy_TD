@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Fortress Frenzy TD</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="CSS/index.css" />
+    <link rel="stylesheet" href="/CSS/guide.css" />
+    <style>
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(to right, #ffd700, #ffa500);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div id="menu" class="menu-container">
+        <h1>Fortress Frenzy TD</h1>
+        <p class="subtitle">Defend your realm. Build your legacy.</p>
+        <button id="classicModeButton" class="menu-button">
+          <i class="fas fa-shield-alt"></i>Classic Mode
+        </button>
+        <button id="arcadeModeButton" class="menu-button">
+          <i class="fas fa-trophy"></i>Arcade Mode
+        </button>
+        <button id="multiplayerModeButton" class="menu-button">
+          <i class="fas fa-users"></i>Multiplayer Mode
+        </button>
+
+        <button onclick="openGuide()" id="guideBtn" class="menu-button">
+          <i class="fas fa-book"></i> Guide
+        </button>
+
+        <!-- Map Selection Section (now shared between Classic and Multiplayer) -->
+        <!-- Previous content remains the same until mapSelect div -->
+        <div id="mapSelect" class="map-select">
+          <div class="map-select-header">
+            <h2>Select Your Battlefield</h2>
+            <button id="mapBackButton" class="back-button">
+              <i class="fas fa-chevron-left"></i> Back to Menu
+            </button>
+          </div>
+
+          <div class="slider-container">
+            <button class="slider-button prev-button">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="map-slider">
+              <div class="map-card">
+                <img
+                  src="assets/FotrtessFrenzyTDGameMap.png"
+                  class="map-preview"
+                />
+                <div class="map-info">
+                  <h3>Tranquil Village Pass</h3>
+                  <p>
+                    Nestled within the outskirts of a peaceful village, this map
+                    features a single winding path where enemies march toward
+                    the town's heart.
+                  </p>
+                  <div class="map-stats">
+                    <span><i class="fas fa-star"></i> Easy</span>
+                    <span><i class="fas fa-wave-square"></i> 100 Waves</span>
+                    <span><i class="fas fa-road"></i> Easy Path</span>
+                  </div>
+                </div>
+                <button class="select-map-btn" data-map="map1">
+                  <i class="fas fa-play"></i> Select Map
+                </button>
+              </div>
+
+              <div class="map-card">
+                <img
+                  src="assets/FortressFrenzyGameMap2.png"
+                  class="map-preview"
+                />
+                <div class="map-info">
+                  <h3>Desert Crossroads</h3>
+                  <p>
+                    Deep within the arid desert, enemies converge from two
+                    directions along a winding maze of rocky terrain. Defenders
+                    must split their focus to protect the central village.
+                  </p>
+                  <div class="map-stats">
+                    <span><i class="fas fa-star"></i> Medium</span>
+                    <span><i class="fas fa-wave-square"></i> 100 Waves</span>
+                    <span><i class="fas fa-road"></i> Complex Path</span>
+                  </div>
+                </div>
+                <button class="select-map-btn" data-map="map2">
+                  <i class="fas fa-play"></i> Select Map
+                </button>
+              </div>
+            </div>
+
+            <button class="slider-button next-button">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <div class="slider-dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level Selection Section -->
+        <div id="levelSelect" class="level-select">
+          <h2>Select Level</h2>
+          <button id="level1Button" class="level-button">
+            <i class="fas fa-flag"></i> Level 1
+          </button>
+          <button id="level2Button" class="level-button">
+            <i class="fas fa-flag"></i> Level 2
+          </button>
+          <button id="backButton" class="back-button">
+            <i class="fas fa-chevron-left"></i> Back to Menu
+          </button>
+        </div>
+      </div>
+      <audio id="bgMusic" loop>
+        <source
+          src="assets/music/medieval-opener-270568.mp3"
+          type="audio/mpeg"
+        />
+        Your browser does not support the audio element.
+      </audio>
+
+      <button id="musicToggle" class="game-guide-button">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+
+      <audio id="buttonClick">
+        <source src="assets/music/menu-click-89198.mp3" type="audio/mpeg" />
+      </audio>
+    </main>
+    <script src="/js_files/arcadeMode.js"></script>
+    <script>
+      const menu = document.getElementById("menu");
+      const levelSelect = document.getElementById("levelSelect");
+      const mapSelect = document.getElementById("mapSelect");
+      const mainButtons = document.querySelectorAll(".menu-button");
+      let currentMode = null;
+
+      // Add this to your existing JavaScript
+      const slider = document.querySelector(".map-slider");
+      const slides = document.querySelectorAll(".map-card");
+      const prevButton = document.querySelector(".prev-button");
+      const nextButton = document.querySelector(".next-button");
+      const dots = document.querySelectorAll(".dot");
+      let currentSlide = 0;
+
+      function updateSlider() {
+        // Calculate the translation percentage based on current slide
+        const translateX = currentSlide * -50; // Use -50% for each slide since each takes up 50% width
+        slider.style.transform = `translateX(${translateX}%)`;
+
+        // Update dots
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentSlide);
+        });
+      }
+
+      // Previous slide button
+      prevButton.addEventListener("click", () => {
+        playButtonSound();
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateSlider();
+        }
+      });
+
+      // Next slide button
+      nextButton.addEventListener("click", () => {
+        playButtonSound();
+        if (currentSlide < slides.length - 1) {
+          currentSlide++;
+          updateSlider();
+        }
+      });
+
+      // Dot navigation
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          playButtonSound();
+          currentSlide = index;
+          updateSlider();
+        });
+      });
+
+      // Optional: Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        playButtonSound();
+        if (e.key === "ArrowLeft" && currentSlide > 0) {
+          currentSlide--;
+          updateSlider();
+        } else if (e.key === "ArrowRight" && currentSlide < slides.length - 1) {
+          currentSlide++;
+          updateSlider();
+        }
+      });
+
+      // Initialize slider
+      updateSlider();
+      // Mode selection buttons
+      document
+        .getElementById("classicModeButton")
+        .addEventListener("click", () => {
+          playButtonSound();
+          currentMode = "classic";
+          mainButtons.forEach((button) => (button.style.display = "none"));
+          mapSelect.style.display = "block";
+        });
+
+      document
+        .getElementById("arcadeModeButton")
+        .addEventListener("click", () => {
+          playButtonSound();
+          mainButtons.forEach((button) => (button.style.display = "none"));
+          levelSelect.style.display = "block";
+        });
+
+      document
+        .getElementById("multiplayerModeButton")
+        .addEventListener("click", () => {
+          playButtonSound();
+          currentMode = "multiplayer";
+          mainButtons.forEach((button) => (button.style.display = "none"));
+          mapSelect.style.display = "block";
+        });
+
+      // Map selection buttons
+      // Map selection buttons
+      document.querySelectorAll(".select-map-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          playButtonSound();
+          const mapId = button.getAttribute("data-map");
+          localStorage.setItem("selectedMap", mapId); // Store selected map
+          localStorage.setItem("gameMode", currentMode); // Store selected mode
+          location.href = "game.html"; // Navigate to the game page
+        });
+      });
+
+      // Map selection back button
+      document.getElementById("mapBackButton").addEventListener("click", () => {
+        playButtonSound();
+        mainButtons.forEach((button) => (button.style.display = "flex"));
+        mapSelect.style.display = "none";
+        currentMode = null;
+      });
+
+      // Level selection buttons
+      document.getElementById("level1Button").addEventListener("click", () => {
+        playButtonSound();
+        localStorage.setItem("arcadeLevel", "1");
+        localStorage.setItem("gameMode", "arcade"); // Set arcade mode
+        location.href = "game.html"; // Navigate to the merged game page
+      });
+
+      document.getElementById("level2Button").addEventListener("click", () => {
+        playButtonSound();
+        localStorage.setItem("arcadeLevel", "2");
+        localStorage.setItem("gameMode", "arcade"); // Set arcade mode
+        location.href = "game.html"; // Navigate to the merged game page
+      });
+
+      // Level selection back button
+      document.getElementById("backButton").addEventListener("click", () => {
+        playButtonSound();
+        mainButtons.forEach((button) => (button.style.display = "flex"));
+        levelSelect.style.display = "none";
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const bgMusic = document.getElementById("bgMusic");
+        bgMusic.volume = 0.3; // Sets volume to 20% of maximum
+        const musicToggle = document.getElementById("musicToggle");
+        const musicIcon = musicToggle.querySelector("svg");
+        let isMuted = false;
+
+        // Load music preference from localStorage
+        const musicPreference = localStorage.getItem("musicPreference");
+        if (musicPreference === "muted") {
+          isMuted = true;
+          bgMusic.muted = true;
+          updateMusicIcon(true);
+        }
+
+        // Function to update the SVG icon
+        function updateMusicIcon(muted) {
+          if (muted) {
+            musicIcon.innerHTML = `
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            `;
+          } else {
+            musicIcon.innerHTML = `
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            `;
+          }
+        }
+
+        // Function to play music
+        function playBackgroundMusic() {
+          const playPromise = bgMusic.play();
+
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("Playback prevented. Waiting for user interaction.");
+            });
+          }
+        }
+
+        // Toggle music on/off
+        musicToggle.addEventListener("click", () => {
+          if (isMuted) {
+            bgMusic.muted = false;
+            localStorage.setItem("musicPreference", "unmuted");
+          } else {
+            bgMusic.muted = true;
+            localStorage.setItem("musicPreference", "muted");
+          }
+          isMuted = !isMuted;
+          updateMusicIcon(isMuted);
+        });
+
+        // Start playing music on first user interaction
+        document.addEventListener(
+          "click",
+          function initMusic() {
+            playBackgroundMusic();
+            document.removeEventListener("click", initMusic);
+          },
+          { once: true }
+        );
+
+        // Handle page visibility changes
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            bgMusic.pause();
+          } else if (!isMuted) {
+            playBackgroundMusic();
+          }
+        });
+      });
+
+      // Add this function to your existing JavaScript
+      function playButtonSound() {
+        const sound = document.getElementById("buttonClick");
+        if (sound) {
+          sound.currentTime = 0;
+          const playPromise = sound.play();
+
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("Sound playback failed:", error);
+            });
+          }
+        }
+      }
+    </script>
+
+    <script src="/js_files/guide.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        initGuide();
+      });
+    </script>
+  </body>
+</html>
