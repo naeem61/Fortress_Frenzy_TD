@@ -83,7 +83,7 @@ const enemyTypes = {
   },
 
   WisdomMage: {
-    cost: 90,
+    cost: 9,
     class: AdaptiveEnemy,
     image: "assets/Adaptiv_ALONE.png",
   },
