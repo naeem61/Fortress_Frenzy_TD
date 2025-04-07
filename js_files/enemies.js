@@ -2632,7 +2632,8 @@ class CowardEnemy extends Enemy {
     ctx.restore();
   }
 }
-const activeWeatherEffects = new Set();
+const activeWeatherBosses = new Map(); // Map to track all active bosses and their current states
+
 class WeatherBoss extends Enemy {
   constructor(path) {
     const spriteInfo = {
@@ -2646,6 +2647,11 @@ class WeatherBoss extends Enemy {
     };
 
     super(path, 1, Math.floor(Math.random() * 101), 220, 10, 3, spriteInfo);
+
+    // Generate a unique ID for this boss instance
+    this.bossId = `weather-boss-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     this.states = {
       NORMAL: "normal",
@@ -2707,13 +2713,11 @@ class WeatherBoss extends Enemy {
     this.baseSpeed = this.speed;
     this.spellDropChance = 0.7;
 
-    // Store original tower properties
-    this.originalTowerProperties = new Map();
-
-    this.affectedEntities = {
-      towers: new Map(),
-      enemies: new Map(),
-    };
+    // Register this boss with the active bosses map
+    activeWeatherBosses.set(this.bossId, {
+      boss: this,
+      state: this.currentState,
+    });
 
     // Add new properties for enhanced AI
     this.threatAssessment = {
@@ -2751,92 +2755,151 @@ class WeatherBoss extends Enemy {
         manyEnemies: 0.5,
       },
     };
+
+    // Ensure all entities have original properties stored
+    this.initializeEntityProperties();
   }
 
-  applyGlobalWeatherEffects() {
-    // Only apply the effect if it's not already active
-    if (!activeWeatherEffects.has(this.currentState)) {
-      activeWeatherEffects.add(this.currentState);
-      const effect = this.weatherEffects[this.currentState];
+  // Store original properties for all entities when this boss is created
+  initializeEntityProperties() {
+    // Initialize enemies
+    enemies.forEach((enemy) => {
+      if (enemy !== this && enemy.originalSpeed === undefined) {
+        enemy.originalSpeed = enemy.speed;
+      }
+    });
 
-      // Apply effects to all enemies
-      enemies.forEach((enemy) => {
-        if (enemy !== this) {
-          const enemyId = enemy.id || Math.random().toString();
+    // Initialize towers
+    towers.forEach((tower) => {
+      this.initializeTowerProperties(tower);
+    });
+  }
 
-          if (!this.affectedEntities.enemies.has(enemyId)) {
-            this.affectedEntities.enemies.set(enemyId, {
-              entity: enemy,
-              originalSpeed: enemy.speed,
-            });
-          }
-
-          enemy.speed =
-            this.affectedEntities.enemies.get(enemyId).originalSpeed *
-            effect.globalSpeedMod;
-        }
-      });
-
-      // Apply effects to all towers
-      towers.forEach((tower) => {
-        const towerId = tower.id || Math.random().toString();
-
-        if (!this.affectedEntities.towers.has(towerId)) {
-          this.affectedEntities.towers.set(towerId, {
-            entity: tower,
-            originalRange: tower.range,
-            originalFireRate: tower.fireRate,
-          });
-        }
-
-        const originalProps = this.affectedEntities.towers.get(towerId);
-        tower.range = originalProps.originalRange * effect.towerRangeMod;
-        tower.fireRate = originalProps.originalFireRate * effect.towerSpeedMod;
-      });
+  // Method to initialize a single tower's properties
+  initializeTowerProperties(tower) {
+    if (tower.originalRange === undefined) {
+      tower.originalRange = tower.range;
+    }
+    if (tower.originalFireRate === undefined) {
+      tower.originalFireRate = tower.fireRate;
     }
   }
 
-  restoreOriginalProperties() {
-    // Restore properties as usual
-    this.affectedEntities.enemies.forEach((data, enemyId) => {
-      if (data.entity && typeof data.originalSpeed !== "undefined") {
-        data.entity.speed = data.originalSpeed;
-      }
-    });
+  // Apply weather effects to a newly placed tower
+  applyWeatherEffectsToTower(tower) {
+    // First initialize the tower's original properties
+    this.initializeTowerProperties(tower);
 
-    this.affectedEntities.towers.forEach((data, towerId) => {
-      if (data.entity) {
-        if (typeof data.originalRange !== "undefined") {
-          data.entity.range = data.originalRange;
-        }
-        if (typeof data.originalFireRate !== "undefined") {
-          data.entity.fireRate = data.originalFireRate;
-        }
-      }
-    });
+    // Check what effects are currently active
+    const activeEffects = {
+      rainy: false,
+      foggy: false,
+      snowy: false,
+    };
 
-    // Remove this weather effect from the global tracking
-    activeWeatherEffects.delete(this.currentState);
+    for (const [_, bossData] of activeWeatherBosses) {
+      if (bossData.state === this.states.RAINY) activeEffects.rainy = true;
+      if (bossData.state === this.states.FOGGY) activeEffects.foggy = true;
+      if (bossData.state === this.states.SNOWY) activeEffects.snowy = true;
+    }
 
-    this.affectedEntities.enemies.clear();
-    this.affectedEntities.towers.clear();
+    // Apply FOGGY effect if active
+    if (activeEffects.foggy) {
+      tower.range =
+        tower.originalRange *
+        this.weatherEffects[this.states.FOGGY].towerRangeMod;
+    }
+
+    // Apply SNOWY effect if active
+    if (activeEffects.snowy) {
+      tower.fireRate =
+        tower.originalFireRate *
+        this.weatherEffects[this.states.SNOWY].towerSpeedMod;
+    }
   }
+
+  // Recalculate all entity properties based on all active bosses
+  recalculateAllEntityProperties() {
+    // If no active bosses, nothing to do
+    if (activeWeatherBosses.size === 0) return;
+
+    // Track which effects are active
+    const activeEffects = {
+      rainy: false,
+      foggy: false,
+      snowy: false,
+    };
+
+    // Check what effects are currently active
+    for (const [_, bossData] of activeWeatherBosses) {
+      if (bossData.state === this.states.RAINY) activeEffects.rainy = true;
+      if (bossData.state === this.states.FOGGY) activeEffects.foggy = true;
+      if (bossData.state === this.states.SNOWY) activeEffects.snowy = true;
+    }
+
+    // Recalculate enemy speeds (only affected by RAINY)
+    enemies.forEach((enemy) => {
+      // Initialize original speed if not initialized (for new enemies)
+      if (enemy.originalSpeed === undefined && enemy !== this) {
+        enemy.originalSpeed = enemy.speed;
+      }
+
+      if (enemy.originalSpeed !== undefined && enemy !== this) {
+        // Apply RAINY effect if active
+        if (activeEffects.rainy) {
+          enemy.speed =
+            enemy.originalSpeed *
+            this.weatherEffects[this.states.RAINY].globalSpeedMod;
+        } else {
+          enemy.speed = enemy.originalSpeed;
+        }
+      }
+    });
+
+    // Recalculate tower properties
+    towers.forEach((tower) => {
+      // Initialize tower properties if not already initialized (for new towers)
+      this.initializeTowerProperties(tower);
+
+      // Apply FOGGY effect if active
+      if (activeEffects.foggy) {
+        tower.range =
+          tower.originalRange *
+          this.weatherEffects[this.states.FOGGY].towerRangeMod;
+      } else {
+        tower.range = tower.originalRange;
+      }
+
+      // Apply SNOWY effect if active
+      if (activeEffects.snowy) {
+        tower.fireRate =
+          tower.originalFireRate *
+          this.weatherEffects[this.states.SNOWY].towerSpeedMod;
+      } else {
+        tower.fireRate = tower.originalFireRate;
+      }
+    });
+  }
+
   changeState(newState) {
     if (this.currentState !== newState) {
-      // Restore all properties to original values
-      this.restoreOriginalProperties();
+      // Update state in the active bosses map
+      activeWeatherBosses.set(this.bossId, {
+        boss: this,
+        state: newState,
+      });
 
       // Update state
       this.currentState = newState;
       this.lastStateChange = Date.now();
 
-      // Apply new effects
+      // Apply personal effects
       const effect = this.weatherEffects[newState];
       this.speed = this.baseSpeed * effect.speedMod;
       this.damageReduction = effect.damageReduction;
 
-      // Apply new global effects
-      this.applyGlobalWeatherEffects();
+      // Recalculate all global effects
+      this.recalculateAllEntityProperties();
 
       // Reset particles
       this.weatherParticles = [];
@@ -2845,26 +2908,10 @@ class WeatherBoss extends Enemy {
 
   // Add new method to reset to normal state
   resetToNormalState() {
-    // Reset all towers to their original properties
-    towers.forEach((tower) => {
-      const towerId = tower.id || Math.random().toString();
-      const originalProps = this.originalTowerProperties.get(towerId);
-
-      if (originalProps) {
-        tower.range = originalProps.range;
-        tower.fireRate = originalProps.fireRate;
-      }
-    });
-
-    // Reset all enemies to their original speed
-    enemies.forEach((enemy) => {
-      if (enemy !== this && enemy.originalSpeed) {
-        enemy.speed = enemy.originalSpeed;
-      }
-    });
+    this.changeState(this.states.NORMAL);
   }
 
-  // Add distance calculation method
+  // Rest of the methods remain unchanged
   getDistanceTo(entity) {
     const dx = this.x - entity.x;
     const dy = this.y - entity.y;
@@ -2993,8 +3040,12 @@ class WeatherBoss extends Enemy {
 
     // Check if at end of path
     if (this.currentWaypointIndex >= this.path.length) {
-      // Clean up weather effects before removing from game
-      this.restoreOriginalProperties();
+      // Remove this boss from active bosses tracking
+      activeWeatherBosses.delete(this.bossId);
+
+      // Recalculate all entity properties
+      this.recalculateAllEntityProperties();
+
       this.resetToNormalState();
 
       // Handle standard end-of-path logic from base class
@@ -3075,8 +3126,14 @@ class WeatherBoss extends Enemy {
   }
 
   die() {
-    // Restore all original properties before dying
-    this.restoreOriginalProperties();
+    // Remove this boss from active bosses tracking
+    activeWeatherBosses.delete(this.bossId);
+
+    // Recalculate all entity properties
+    this.recalculateAllEntityProperties();
+
+    this.resetToNormalState();
+
     super.die();
   }
 

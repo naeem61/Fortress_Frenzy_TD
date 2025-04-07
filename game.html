@@ -56,6 +56,38 @@
         </svg>
       </button>
 
+          <!-- Add this after the musicToggle button -->
+          <button id="menuButton" class="game-guide-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+              <line x1="8" y1="8" x2="16" y2="8"></line>
+              <line x1="8" y1="16" x2="16" y2="16"></line>
+            </svg>
+          </button>
+    
+          <!-- Add this modal dialog at the bottom of your body tag, before closing main tag -->
+          <div id="confirmationModal" class="modal" style="display: none;">
+            <div class="modal-content">
+              <h3>Return to Main Menu?</h3>
+              <p>Your current game progress will be lost.</p>
+              <div class="modal-buttons">
+                <button id="confirmReturn">Yes, Return</button>
+                <button id="cancelReturn">No, Continue Playing</button>
+              </div>
+            </div>
+          </div>
+
       <div id="tower-selection">
         <div class="tower-card selected" data-tower-type="default">
           <div class="tower-cost">25</div>
@@ -74,7 +106,7 @@
             alt="Splash Tower"
           />
           <div class="tower-card-details">
-            <h3>Bomb</h3>
+            <h3>Splash</h3>
           </div>
         </div>
         <div class="tower-card" data-tower-type="xray">
@@ -161,23 +193,26 @@
             <span class="spell-quantity">0</span>
             <div class="cooldown-overlay"></div>
           </button>
+          <div class="spell-name">Fire</div>
         </div>
+        
         <div class="spell-card">
           <button id="freeze-spell" class="spell-button">
             <img src="assets/spells/freeze.png" />
             <span class="spell-quantity">0</span>
             <div class="cooldown-overlay"></div>
           </button>
-          <div class="spell-card">
-            <button id="rage-spell" class="spell-button">
-              <img src="assets/spells/rage.png" />
-              <span class="spell-quantity">0</span>
-              <div class="cooldown-overlay"></div>
-            </button>
-          </div>
+          <div class="spell-name">Freeze</div>
         </div>
-
-        <!-- Add more spell cards here -->
+        
+        <div class="spell-card">
+          <button id="rage-spell" class="spell-button">
+            <img src="assets/spells/rage.png" />
+            <span class="spell-quantity">0</span>
+            <div class="cooldown-overlay"></div>
+          </button>
+          <div class="spell-name">Rage</div>
+        </div>
       </div>
 
       <audio id="uiClick">
@@ -346,7 +381,9 @@
         drawTowers();
         drawProjectiles();
         drawTowerPreview();
+
         drawActiveSpells(ctx);
+        drawSpellPreview();
 
         // Highlight hovered tile if applicable
         if (
@@ -423,6 +460,7 @@
         drawTowers();
         drawProjectiles();
         drawTowerPreview();
+        drawSpellPreview();
         drawActiveSpells(ctx);
 
         // Highlight hovered tile if applicable
@@ -518,6 +556,7 @@
           ctx.fillRect(hoveredTile.x * 32, hoveredTile.y * 32, 32, 32);
         }
         drawTowerPreview();
+        drawSpellPreview();
 
         // 4.3 Draw towers
         drawTowers();
@@ -652,16 +691,38 @@
         airdefence: new AudioPool('assets/placement_tower_sound/sword-block-the-ballad-of-blades-257226.mp3')
       };
 
-      canvas.addEventListener("click", (event) => {
-        const mouseX = event.offsetX;
-        const mouseY = event.offsetY;
+      let spellPreviewTimer = 0;
+      let spellPreviewAlpha = 0.5;
+      let spellPreviewIncreasing = true;
+      let mousePosition = { x: 0, y: 0 }; // Track mouse position for spell preview
 
-        if (selectedSpell === "fire") {
-          spells.fire.applyEffect(mouseX, mouseY, enemies);
-        } else if (selectedSpell === "freeze") {
-          spells.freeze.applyEffect(mouseX, mouseY, enemies);
-        } else if (selectedSpell === "rage") {
-          spells.rage.applyEffect(mouseX, mouseY, towers);
+      // Update mouse position on move
+      canvas.addEventListener("mousemove", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        mousePosition.x = event.clientX - rect.left;
+        mousePosition.y = event.clientY - rect.top;
+      });
+
+      // Add event listener for mouse click to cast spells
+      canvas.addEventListener("click", (event) => {
+        if (selectedSpell && spells[selectedSpell]) {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          
+          // Check if the spell can be cast
+          if (spells[selectedSpell].canCast()) {
+            // Apply effect based on spell type
+            if (selectedSpell === "fire") {
+              spells[selectedSpell].applyEffect(x, y, enemies);
+            } else if (selectedSpell === "freeze") {
+              spells[selectedSpell].applyEffect(x, y, enemies);
+            } else if (selectedSpell === "rage") {
+              spells[selectedSpell].applyEffect(x, y, towers);
+            }
+          } else {
+            console.log(`Can't cast ${selectedSpell} spell - on cooldown or not available.`);
+          }
         }
       });
 
@@ -728,6 +789,55 @@
           selectedSpell = null;
           console.log("Spell deselected by clicking outside.");
         }
+      });
+
+      // Menu button functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const menuButton = document.getElementById('menuButton');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmReturn = document.getElementById('confirmReturn');
+        const cancelReturn = document.getElementById('cancelReturn');
+        const uiClick = document.getElementById('uiClick');
+
+        // Play UI sound for buttons
+        function playUISound() {
+          if (uiClick) {
+            uiClick.currentTime = 0;
+            uiClick.play();
+          }
+        }
+
+        // Show confirmation modal
+        menuButton.addEventListener('click', function() {
+          playUISound();
+          confirmationModal.style.display = 'flex';
+        });
+
+        // Confirm return to main menu
+        confirmReturn.addEventListener('click', function() {
+          playUISound();
+          window.location.href = 'index.html'; // Redirect to main menu
+        });
+
+        // Cancel and continue playing
+        cancelReturn.addEventListener('click', function() {
+          playUISound();
+          confirmationModal.style.display = 'none';
+        });
+
+        // Close modal if clicked outside
+        confirmationModal.addEventListener('click', function(event) {
+          if (event.target === confirmationModal) {
+            confirmationModal.style.display = 'none';
+          }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && confirmationModal.style.display === 'flex') {
+            confirmationModal.style.display = 'none';
+          }
+        });
       });
 
       let lastUpdateTime = 0;

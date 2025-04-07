@@ -464,6 +464,123 @@ const spellSounds = {
   rage: new AudioPool("assets/spell_sounds/invisibility-spell-98622.mp3"),
 };
 
+// Function to get spell radius
+function getSpellRadius(spellType) {
+  if (!spells[spellType]) return 0;
+  return spells[spellType].radius;
+}
+
+// Draw a preview of the spell range when a spell is selected
+function drawSpellPreview() {
+  // Only draw if a spell is selected
+  if (!selectedSpell) return;
+
+  const spellData = spells[selectedSpell];
+  if (!spellData) return;
+
+  // Animate preview alpha for a pulsing effect
+  spellPreviewTimer++;
+  if (spellPreviewTimer % 10 === 0) {
+    if (spellPreviewIncreasing) {
+      spellPreviewAlpha += 0.3;
+      if (spellPreviewAlpha >= 0.7) {
+        spellPreviewIncreasing = false;
+      }
+    } else {
+      spellPreviewAlpha -= 0.1;
+      if (spellPreviewAlpha <= 0.4) {
+        spellPreviewIncreasing = true;
+      }
+    }
+  }
+
+  // Draw a preview of what the spell effect would look like
+  ctx.globalAlpha = spellPreviewAlpha * 1; // Make the preview semi-transparent
+
+  // Draw the spell effect with customized transparency
+  if (selectedSpell === "fire") {
+    // Draw fire spell preview with adjusted transparency
+    const gradient = ctx.createRadialGradient(
+      mousePosition.x,
+      mousePosition.y,
+      0,
+      mousePosition.x,
+      mousePosition.y,
+      spellData.radius
+    );
+    gradient.addColorStop(0, `rgba(255, 165, 0, ${spellPreviewAlpha * 0.5})`); // Orange core
+    gradient.addColorStop(0.5, `rgba(255, 69, 0, ${spellPreviewAlpha * 0.4})`); // Red-orange middle
+    gradient.addColorStop(1, "rgba(255, 0, 0, 0)"); // Fade to transparent
+
+    ctx.beginPath();
+    ctx.arc(mousePosition.x, mousePosition.y, spellData.radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Add border to show range clearly
+    ctx.strokeStyle = `rgba(255, 69, 0, ${spellPreviewAlpha * 0.8})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else if (selectedSpell === "freeze") {
+    // Draw freeze spell preview with adjusted transparency
+    const gradient = ctx.createRadialGradient(
+      mousePosition.x,
+      mousePosition.y,
+      0,
+      mousePosition.x,
+      mousePosition.y,
+      spellData.radius
+    );
+    gradient.addColorStop(0, `rgba(220, 240, 255, ${spellPreviewAlpha * 0.3})`);
+    gradient.addColorStop(
+      0.3,
+      `rgba(135, 206, 235, ${spellPreviewAlpha * 0.25})`
+    );
+    gradient.addColorStop(0.6, `rgba(0, 127, 255, ${spellPreviewAlpha * 0.2})`);
+    gradient.addColorStop(1, "rgba(0, 61, 165, 0)");
+
+    ctx.beginPath();
+    ctx.arc(mousePosition.x, mousePosition.y, spellData.radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Add border
+    ctx.strokeStyle = `rgba(135, 206, 250, ${spellPreviewAlpha * 0.8})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else if (selectedSpell === "rage") {
+    // Draw rage spell preview with adjusted transparency
+    const gradient = ctx.createRadialGradient(
+      mousePosition.x,
+      mousePosition.y,
+      0,
+      mousePosition.x,
+      mousePosition.y,
+      spellData.radius
+    );
+    gradient.addColorStop(0, `rgba(147, 0, 211, ${spellPreviewAlpha * 0.3})`);
+    gradient.addColorStop(
+      0.4,
+      `rgba(138, 43, 226, ${spellPreviewAlpha * 0.25})`
+    );
+    gradient.addColorStop(0.7, `rgba(148, 0, 211, ${spellPreviewAlpha * 0.2})`);
+    gradient.addColorStop(1, "rgba(75, 0, 130, 0)");
+
+    ctx.beginPath();
+    ctx.arc(mousePosition.x, mousePosition.y, spellData.radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Add border
+    ctx.strokeStyle = `rgba(147, 112, 219, ${spellPreviewAlpha * 0.8})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Reset global alpha to default
+  ctx.globalAlpha = 1.0;
+}
+
 // Volume and mute control functions for spell sounds
 function setSpellSoundVolume(volume) {
   Object.values(spellSounds).forEach((pool) => {

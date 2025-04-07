@@ -148,27 +148,26 @@ function placeTower(x, y, type) {
     if (playerCurrency >= towerData.cost) {
       let tower;
       if (type === "default") {
-        tower = new Tower(
-          x,
-          y,
-          300,
-          8,
-          1000,
-          50,
-          defaultTowerSpriteInfo,
-          true
-        ); // Default tower with specific params
+        tower = new Tower(x, y, 300, 8, 1000, 50, defaultTowerSpriteInfo, true); // Default tower with specific params
       } else {
         tower = new towerData.class(x, y); // Use class directly for other types
       }
       towers.push(tower);
       playerCurrency -= towerData.cost; // Deduct the cost
       map2DArray[y][x] = 0;
+
+      // Apply weather effects from all active weather bosses to the newly placed tower
+      if (activeWeatherBosses.size > 0) {
+        // Get any weather boss instance to use its methods
+        const anyBoss = Array.from(activeWeatherBosses.values())[0].boss;
+        anyBoss.applyWeatherEffectsToTower(tower);
+      }
     } else {
       console.log("Not enough currency!");
     }
+  } else {
+    console.log("Tower placement occupied");
   }
-  console.log("Tower placemnet occupied");
 }
 
 let towerPreviewTimer = 0;
