@@ -113,7 +113,7 @@
 
 .tower-card h3, .enemy-card h3 {
     margin-top: 0;
-    /* color: #ffd700; */
+    
     text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
 } */
 
@@ -169,7 +169,7 @@
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
-/* Add a pulsing animation */
+
 @keyframes pulse {
     0% { box-shadow: 0 0 15px rgba(179, 157, 219, 0.3); }
     50% { box-shadow: 0 0 20px rgba(179, 157, 219, 0.5); }
@@ -190,7 +190,7 @@
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
-/* Custom scrollbar for the guide */
+
 .tab-content::-webkit-scrollbar {
     width: 8px;
 }
@@ -208,7 +208,7 @@
     background: rgba(179, 157, 219, 0.7);
 }
 
-/* Additional text styling */
+
 .tab-content p {
     color: #b39ddb;
     line-height: 1.6;
@@ -237,6 +237,6 @@
 
 #musicToggle {
     top: 20px;
-    right: 215px; /* Position it to the left of the guide button */
+    right: 215px; 
 }
 

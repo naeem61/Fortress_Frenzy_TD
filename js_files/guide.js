@@ -1,13 +1,9 @@
-// Game state management
 let gameIsPaused = false;
 let animationFrameId = null;
 
-// Modified game initialization
 window.onload = function () {
-  // Initialize guide first
   initGuide();
 
-  // Then initialize game mode
   if (multiplayerActive) {
     startMultiplayerMode();
   } else if (arcadeActive) {
@@ -451,7 +447,6 @@ function createGuide() {
         </div>
     </div>`;
 
-  // Only insert if it doesn't exist
   document.body.insertAdjacentHTML("beforeend", guideHTML);
 }
 
@@ -467,7 +462,7 @@ function pauseGame() {
 function resumeGame() {
   if (gameIsPaused) {
     gameIsPaused = false;
-    // Resume the game loop based on current mode
+
     const selectedMode = localStorage.getItem("gameMode") || "classic";
     if (selectedMode === "classic") {
       animationFrameId = requestAnimationFrame(updateClassicMode);
@@ -479,7 +474,6 @@ function resumeGame() {
   }
 }
 
-// Guide control functions
 function openGuide() {
   const guideElement = document.getElementById("game-guide");
   if (!guideElement) {
@@ -487,14 +481,14 @@ function openGuide() {
     initGuide();
   }
   document.getElementById("game-guide").style.display = "flex";
-  pauseGame(); // Pause the game when guide is opened
+  pauseGame();
 }
 
 function closeGuide() {
   const guideElement = document.getElementById("game-guide");
   if (guideElement) {
     guideElement.style.display = "none";
-    resumeGame(); // Resume the game when guide is closed
+    resumeGame();
   }
 }
 
@@ -513,7 +507,6 @@ function openTab(evt, tabName) {
   evt.currentTarget.classList.add("active");
 }
 
-// Initialize guide
 function initGuide() {
   createGuide();
 
@@ -523,14 +516,12 @@ function initGuide() {
     return;
   }
 
-  // Add click outside listener
   guideElement.addEventListener("click", function (event) {
     if (event.target === this) {
       closeGuide();
     }
   });
 
-  // Add escape key listener
   document.addEventListener("keydown", function (event) {
     if (event.key === "o" && guideElement.style.display === "flex") {
       closeGuide();
@@ -538,7 +529,6 @@ function initGuide() {
   });
 }
 
-// Export functions
 window.openGuide = openGuide;
 window.closeGuide = closeGuide;
 window.openTab = openTab;

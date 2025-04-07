@@ -16,7 +16,7 @@ main {
   gap: 10px;
 }
 
-/* Game container and layout */
+
 .game-container {
   display: flex;
   gap: 20px;
@@ -25,7 +25,7 @@ main {
 }
 
 
-/* Ensure canvas stays centered */
+
 canvas {
   order: 2;
   border: 5px solid black;
@@ -237,9 +237,9 @@ h2 {
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.2s ease-in-out;
-  flex: 1;            /* Allow buttons to grow */
-  min-width: 120px;   /* Minimum width for buttons */
-  max-width: 200px;   /* Maximum width for buttons */
+  flex: 1;            
+  min-width: 120px;   
+  max-width: 200px;   
 }
 
 .tower-button:hover {
@@ -255,7 +255,7 @@ h2 {
 }
 
 
-/* Update the overlay to use absolute positioning */
+
 #tower-overlay {
   position: absolute;
   left: calc(100% + 5px);
@@ -336,7 +336,7 @@ h2 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Adding a golden glow animation to the border */
+
 @keyframes borderGlow {
   0% { border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
   50% { border-color: #ffa500; box-shadow: 0 0 20px rgba(255, 165, 0, 0.4); }
@@ -524,38 +524,38 @@ p, h1, h3 {
   max-width: 800px;
   margin: 0 auto;
   overflow: hidden;
-  /* Add a fixed height if needed */
+  
   height: auto;
 }
 
 .map-slider {
   display: flex;
   transition: transform 0.3s ease-in-out;
-  /* Set explicit width to contain all slides */
-  width: 200%;  /* 100% per slide for 2 slides */
+  
+  width: 200%;  
   margin-top: 10px;
 }
 
 .map-card {
-  /* Change from min-width to width for exact sizing */
-  width: 50%;  /* 50% of the 200% container width = exactly one full view */
-  flex-shrink: 0;  /* Prevent slide from shrinking */
+  
+  width: 50%;  
+  flex-shrink: 0;  
   padding: 1rem;
-  box-sizing: border-box;  /* Include padding in width calculation */
-  /* Prevent horizontal overflow */
+  box-sizing: border-box;  
+  
   overflow: hidden;
 }
 
-/* Keep map preview images contained */
+
 .map-preview {
   width: 100%;
   height: auto;
   border-radius: 8px;
-  display: block;  /* Remove any potential inline spacing */
-  max-width: 100%;  /* Ensure image doesn't overflow */
+  display: block;  
+  max-width: 100%;  
 }
 
-/* Rest of your styles remain the same */
+
 .slider-button {
   position: absolute;
   top: 50%;
@@ -606,13 +606,13 @@ p, h1, h3 {
   background: #ffd700;
 }
 
-/* Additional styles to ensure content stays within bounds */
+
 .map-info {
   width: 100%;
   overflow: hidden;
 }
 
-/* Ensure buttons stay within their slide */
+
 .select-map-btn {
   width: 100%;
   margin-top: 1rem;
@@ -693,15 +693,15 @@ p, h1, h3 {
   font-size: 1.2rem;
   font-weight: bold;
   border-radius: 5px;
-  display: none; /* Initially hidden */
+  display: none; 
 }
 
 #menuButton {
-  top: 20px; /* 50px below the music button */
+  top: 20px; 
   right: 350px;
 }
 
-/* Modal styles */
+
 .modal {
   position: fixed;
   top: 0;
@@ -802,6 +802,6 @@ p, h1, h3 {
 }
 
 .music-control-button.muted .fa-volume-up:before {
-  content: "\f6a9";  /* Font Awesome muted icon */
+  content: "\f6a9";  
 }
 

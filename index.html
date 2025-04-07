@@ -114,7 +114,6 @@
           </div>
         </div>
 
-        <!-- level selection section -->
         <div id="levelSelect" class="level-select">
           <h2>Select Level</h2>
           <button id="level1Button" class="level-button">
@@ -166,7 +165,6 @@
       const mainButtons = document.querySelectorAll(".menu-button");
       let currentMode = null;
 
-      // Add this to your existing JavaScript
       const slider = document.querySelector(".map-slider");
       const slides = document.querySelectorAll(".map-card");
       const prevButton = document.querySelector(".prev-button");
@@ -175,17 +173,14 @@
       let currentSlide = 0;
 
       function updateSlider() {
-        // Calculate the translation percentage based on current slide
-        const translateX = currentSlide * -50; // Use -50% for each slide since each takes up 50% width
+        const translateX = currentSlide * -50;
         slider.style.transform = `translateX(${translateX}%)`;
 
-        // Update dots
         dots.forEach((dot, index) => {
           dot.classList.toggle("active", index === currentSlide);
         });
       }
 
-      // Previous slide button
       prevButton.addEventListener("click", () => {
         playButtonSound();
         if (currentSlide > 0) {
@@ -194,7 +189,6 @@
         }
       });
 
-      // Next slide button
       nextButton.addEventListener("click", () => {
         playButtonSound();
         if (currentSlide < slides.length - 1) {
@@ -203,7 +197,6 @@
         }
       });
 
-      // Dot navigation
       dots.forEach((dot, index) => {
         dot.addEventListener("click", () => {
           playButtonSound();
@@ -212,7 +205,6 @@
         });
       });
 
-      // Optional: Keyboard navigation
       document.addEventListener("keydown", (e) => {
         playButtonSound();
         if (e.key === "ArrowLeft" && currentSlide > 0) {
@@ -224,9 +216,8 @@
         }
       });
 
-      // Initialize slider
       updateSlider();
-      // Mode selection buttons
+
       document
         .getElementById("classicModeButton")
         .addEventListener("click", () => {
@@ -253,19 +244,16 @@
           mapSelect.style.display = "block";
         });
 
-      // Map selection buttons
-      // Map selection buttons
       document.querySelectorAll(".select-map-btn").forEach((button) => {
         button.addEventListener("click", () => {
           playButtonSound();
           const mapId = button.getAttribute("data-map");
-          localStorage.setItem("selectedMap", mapId); // Store selected map
-          localStorage.setItem("gameMode", currentMode); // Store selected mode
-          location.href = "game.html"; // Navigate to the game page
+          localStorage.setItem("selectedMap", mapId);
+          localStorage.setItem("gameMode", currentMode);
+          location.href = "game.html";
         });
       });
 
-      // Map selection back button
       document.getElementById("mapBackButton").addEventListener("click", () => {
         playButtonSound();
         mainButtons.forEach((button) => (button.style.display = "flex"));
@@ -273,22 +261,20 @@
         currentMode = null;
       });
 
-      // Level selection buttons
       document.getElementById("level1Button").addEventListener("click", () => {
         playButtonSound();
         localStorage.setItem("arcadeLevel", "1");
-        localStorage.setItem("gameMode", "arcade"); // Set arcade mode
-        location.href = "game.html"; // Navigate to the merged game page
+        localStorage.setItem("gameMode", "arcade");
+        location.href = "game.html";
       });
 
       document.getElementById("level2Button").addEventListener("click", () => {
         playButtonSound();
         localStorage.setItem("arcadeLevel", "2");
-        localStorage.setItem("gameMode", "arcade"); // Set arcade mode
-        location.href = "game.html"; // Navigate to the merged game page
+        localStorage.setItem("gameMode", "arcade");
+        location.href = "game.html";
       });
 
-      // Level selection back button
       document.getElementById("backButton").addEventListener("click", () => {
         playButtonSound();
         mainButtons.forEach((button) => (button.style.display = "flex"));
@@ -297,12 +283,11 @@
 
       document.addEventListener("DOMContentLoaded", function () {
         const bgMusic = document.getElementById("bgMusic");
-        bgMusic.volume = 0.3; // Sets volume to 20% of maximum
+        bgMusic.volume = 0.3;
         const musicToggle = document.getElementById("musicToggle");
         const musicIcon = musicToggle.querySelector("svg");
         let isMuted = false;
 
-        // Load music preference from localStorage
         const musicPreference = localStorage.getItem("musicPreference");
         if (musicPreference === "muted") {
           isMuted = true;
@@ -310,7 +295,6 @@
           updateMusicIcon(true);
         }
 
-        // Function to update the SVG icon
         function updateMusicIcon(muted) {
           if (muted) {
             musicIcon.innerHTML = `
@@ -327,7 +311,6 @@
           }
         }
 
-        // Function to play music
         function playBackgroundMusic() {
           const playPromise = bgMusic.play();
 
@@ -338,7 +321,6 @@
           }
         }
 
-        // Toggle music on/off
         musicToggle.addEventListener("click", () => {
           if (isMuted) {
             bgMusic.muted = false;
@@ -351,7 +333,6 @@
           updateMusicIcon(isMuted);
         });
 
-        // Start playing music on first user interaction
         document.addEventListener(
           "click",
           function initMusic() {
@@ -361,7 +342,6 @@
           { once: true }
         );
 
-        // Handle page visibility changes
         document.addEventListener("visibilitychange", () => {
           if (document.hidden) {
             bgMusic.pause();
@@ -371,7 +351,6 @@
         });
       });
 
-      // Add this function to your existing JavaScript
       function playButtonSound() {
         const sound = document.getElementById("buttonClick");
         if (sound) {

@@ -1,15 +1,14 @@
 class Wave {
   constructor(enemyTypes, spawnInterval, totalEnemies) {
-    this.enemyTypes = enemyTypes; // Array of enemy types for variety
-    this.spawnInterval = spawnInterval; // Time between enemy spawns
+    this.enemyTypes = enemyTypes;
+    this.spawnInterval = spawnInterval;
     this.totalEnemies = totalEnemies;
     this.enemiesSpawned = 0;
     this.lastSpawnTime = 0;
-    this.hasPlayedStartSound = false; // Add this flag
+    this.hasPlayedStartSound = false;
   }
 
   spawnEnemy(currentTime, enemiesArray, initialPath) {
-    // Play wave start sound on first spawn of the wave
     if (!this.hasPlayedStartSound) {
       gameSounds.waveStart.play();
       this.hasPlayedStartSound = true;
@@ -19,9 +18,8 @@ class Wave {
       this.enemiesSpawned < this.totalEnemies &&
       currentTime - this.lastSpawnTime >= this.spawnInterval
     ) {
-      // Determine the path for this enemy
       let enemyPath = initialPath;
-      // Only check for map2 paths if we're in classic/multiplayer mode
+
       if (
         !arcadeActive &&
         typeof selectedMap !== "undefined" &&
@@ -51,36 +49,32 @@ class Wave {
 
       const enemyType =
         this.enemyTypes[Math.floor(Math.random() * this.enemyTypes.length)];
-      const EnemyClass = enemyClasses[enemyType]; // Map string to constructor
+      const EnemyClass = enemyClasses[enemyType];
 
       let newEnemy;
       if (EnemyClass === ThrowingEnemy) {
         newEnemy = new ThrowingEnemy(
-          enemyPath, // Path to follow
-          2, // Speed of ThrowingEnemy
-          150, // Health of ThrowingEnemy
-          8000, // Interval for throwing new enemies
-          BasicEnemy, // Type of enemy to throw
-          enemiesArray // Pass the current enemies array for spawning
+          enemyPath,
+          2,
+          150,
+          8000,
+          BasicEnemy,
+          enemiesArray
         );
       } else if (EnemyClass === ShieldedBossEnemy) {
-        newEnemy = new ShieldedBossEnemy(
-          enemyPath, // Path to follow
-          enemiesArray // Pass the current enemies array for spawning the ShieldedEnemy
-        );
+        newEnemy = new ShieldedBossEnemy(enemyPath, enemiesArray);
       } else if (EnemyClass === BalloonEnemy) {
         newEnemy = new BalloonEnemy(
-          enemyPath, // Path to follow
-          this.speed, // Speed of BalloonEnemy
-          this.dropInterval, // Drop interval (5 seconds)
-          ParachuteEnemy, // Type of enemy to drop
-          enemiesArray // Pass the current enemies array for spawning
+          enemyPath,
+          this.speed,
+          this.dropInterval,
+          ParachuteEnemy,
+          enemiesArray
         );
       } else {
-        newEnemy = new EnemyClass(enemyPath); // Generic enemy initialization
+        newEnemy = new EnemyClass(enemyPath);
       }
 
-      // Play spawn sound for the enemy type
       if (enemySounds[enemyType]) {
         enemySounds[enemyType].play();
       }
@@ -96,16 +90,6 @@ class Wave {
     return this.enemiesSpawned >= this.totalEnemies;
   }
 }
-
-// // Initializing wave example:
-//  waves = [
-//   new Wave([BasicEnemy, FastEnemy], 1000, 10), // Wave with mixed enemies every second
-//   new Wave([FastEnemy, BasicEnemy], 1500, 15), // Next wave with different enemies every 1.5 sec
-//   new Wave([TankEnemy, ShieldedEnemy], 1500, 10), // Next wave with different enemies every 1.5 sec
-//   new Wave([TankEnemy, ThrowingEnemy, HealingEnemy], 1500, 15), // Next wave with different enemies every 1.5 sec
-//   new Wave([DisablingEnemy, ThrowingEnemy, HealingEnemy], 1500, 25), // Next wave with different enemies every 1.5 sec
-//   new Wave([DisablingEnemy, ThrowingEnemy, HealingEnemy], 1500, 35), // Next wave with different enemies every 1.5 sec
-// ];
 
 const enemyCosts = {
   BasicEnemy: 1,
@@ -127,17 +111,15 @@ const enemyCosts = {
   AdaptiveEnemy: 4,
 };
 
-const baseDifficulty = 10; // Starting difficulty
-const difficultyIncrement = 5; // Increase per wave
+const baseDifficulty = 10;
+const difficultyIncrement = 5;
 
 function generateWave(difficultyBudget) {
   const availableEnemies = Object.keys(enemyCosts);
   const enemies = [];
   const initialBudget = difficultyBudget;
 
-  // First pass: randomly select enemies until we can't fit any more
   while (difficultyBudget > 0) {
-    // Filter enemies that fit within the remaining budget
     const affordableEnemies = availableEnemies.filter(
       (type) => enemyCosts[type] <= difficultyBudget
     );
@@ -146,7 +128,6 @@ function generateWave(difficultyBudget) {
       break;
     }
 
-    // Completely random selection from affordable enemies
     const enemyType =
       affordableEnemies[Math.floor(Math.random() * affordableEnemies.length)];
     const cost = enemyCosts[enemyType];
@@ -155,22 +136,19 @@ function generateWave(difficultyBudget) {
     difficultyBudget -= cost;
   }
 
-  // Second pass: if we have leftover budget, fill it with whatever fits
   while (difficultyBudget > 0) {
     const affordableEnemies = availableEnemies.filter(
       (type) => enemyCosts[type] <= difficultyBudget
     );
 
     if (affordableEnemies.length === 0) {
-      // If we can't fit any more enemies, we're done
       break;
     }
 
-    // Find the enemy that makes best use of remaining budget
     const bestFit = affordableEnemies.reduce((best, current) => {
       const currentCost = enemyCosts[current];
       const bestCost = enemyCosts[best];
-      // Choose the enemy that uses more of the remaining budget
+
       return currentCost > bestCost ? current : best;
     });
 
@@ -178,7 +156,6 @@ function generateWave(difficultyBudget) {
     difficultyBudget -= enemyCosts[bestFit];
   }
 
-  // Ensure the wave has at least one enemy
   if (enemies.length === 0) {
     enemies.push("BasicEnemy");
   }
@@ -188,16 +165,15 @@ function generateWave(difficultyBudget) {
 
 function calculateSpawnInterval(totalEnemies, difficultyBudget) {
   const baseInterval = 1500;
-  // Adjust spawn interval based on wave difficulty and enemy count
+
   const intensityFactor = Math.max(1, difficultyBudget / totalEnemies / 2);
-  // Ensure spawn interval doesn't get too short or too long
+
   return Math.min(Math.max(baseInterval / intensityFactor, 800), 3000);
 }
 
 function generateWaves(totalWaves) {
   const waves = [];
 
-  // First four fixed waves for easier onboarding
   waves.push(new Wave(["BasicEnemy"], 2000, 10));
   waves.push(new Wave(["FastEnemy"], 1500, 12));
   waves.push(new Wave(["TankEnemy"], 3000, 5));
@@ -205,7 +181,6 @@ function generateWaves(totalWaves) {
   let currentDifficulty = baseDifficulty + 4 * difficultyIncrement;
 
   for (let i = 0; i < totalWaves; i++) {
-    // Ensure difficulty always increases
     currentDifficulty = Math.max(
       currentDifficulty,
       baseDifficulty + (i + 4) * difficultyIncrement
@@ -226,16 +201,15 @@ function generateWaves(totalWaves) {
 
 function calculateSpawnInterval(totalEnemies, difficultyBudget) {
   const baseInterval = 1500;
-  // Adjust spawn interval based on wave difficulty and enemy count
+
   const intensityFactor = Math.max(1, difficultyBudget / totalEnemies / 2);
-  // Ensure spawn interval doesn't get too short or too long
+
   return Math.min(Math.max(baseInterval / intensityFactor, 800), 3000);
 }
 
 function generateWaves(totalWaves) {
   const waves = [];
 
-  // First four fixed waves for easier onboarding
   waves.push(new Wave(["BasicEnemy"], 2000, 10));
   waves.push(new Wave(["FastEnemy"], 1500, 12));
   waves.push(new Wave(["TankEnemy"], 3000, 5));
@@ -243,7 +217,6 @@ function generateWaves(totalWaves) {
   let currentDifficulty = baseDifficulty + 4 * difficultyIncrement;
 
   for (let i = 0; i < totalWaves; i++) {
-    // Ensure difficulty always increases
     currentDifficulty = Math.max(
       currentDifficulty,
       baseDifficulty + (i + 4) * difficultyIncrement
@@ -262,45 +235,18 @@ function generateWaves(totalWaves) {
   return waves;
 }
 
-// function applyWaveModifiers(wave, waveIndex) {
-//   if ((waveIndex + 1) % 7 === 0) {
-//     // Check if the wave number is a multiple of 7
-//     const bossCount = Math.pow(2, Math.floor((waveIndex + 1) / 7) - 1); // Calculate the number of bosses
-//     wave.enemyTypes = ["ShieldedBossEnemy"];
-//     wave.totalEnemies = bossCount;
-//     wave.spawnInterval = 3000; // Keep a reasonable spawn interval
-//     console.log(
-//       `Wave ${waveIndex + 1}: Spawning ${bossCount} ShieldedBossEnemies!`
-//     );
-//   } else if ((waveIndex + 1) % 10 === 0) {
-//     // Every 10th wave is a Boss Wave
-//     wave.enemyTypes = ["DestroyerBossEnemy"];
-//     wave.totalEnemies = 1;
-//     wave.spawnInterval = 3000;
-//     // } else if (Math.random() < 0.2) {
-//     //   // 20% chance for Swarm Wave
-//     //   wave.enemyTypes = ["BasicEnemy", "FastEnemy"];
-//     //   wave.totalEnemies *= 2;
-//     //   wave.spawnInterval /= 2;
-//   }
-//   // // Other modifiers can be added similarly
-// }
-
-const totalWaves = 100; // Number of waves
+const totalWaves = 100;
 const waves = generateWaves(totalWaves);
 
-waves.forEach((wave, index) => {
-  // applyWaveModifiers(wave, index); // Add special wave types
-});
+waves.forEach((wave, index) => {});
 
 const waveImg = new Image();
 waveImg.src = "assets/stats_ui/waves_icon.png";
-// Display currency
+
 function drawWaves(context) {
   drawTextWithIcon(context, waveImg, `${currentWaveIndex + 1}`, 760, 60);
 }
 
-// Create audio pools for each enemy type
 const enemySounds = {
   BasicEnemy: new AudioPool(
     "assets/enemy_spawning_sounds/mixkit-wild-lion-animal-roar-6.mp3"
@@ -348,25 +294,22 @@ const enemySounds = {
 };
 
 const gameSounds = {
-  ...enemySounds, // Keep existing enemy sounds
-  waveStart: new AudioPool("assets/New_Wave_sound/new-level-142995.mp3"), // Add your wave start sound file
+  ...enemySounds,
+  waveStart: new AudioPool("assets/New_Wave_sound/new-level-142995.mp3"),
 };
 
-// Volume control function
 function setEnemySoundVolume(volume) {
   Object.values(enemySounds).forEach((pool) => {
     pool.setVolume(volume);
   });
 }
 
-// Mute control function
 function toggleEnemySounds(muted) {
   Object.values(enemySounds).forEach((pool) => {
     pool.mute(muted);
   });
 }
 
-// Cleanup function
 function cleanupEnemySounds() {
   Object.values(enemySounds).forEach((pool) => {
     pool.audioElements.forEach((audio) => {

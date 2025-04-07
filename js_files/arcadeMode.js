@@ -1,28 +1,23 @@
-// Cache paths for different levels
 let cachedPaths = {
   level1: null,
   level2: null,
 };
 
 function generateRandomPaths(level, canvasWidth, canvasHeight) {
-  // For level 1, return single path
   if (level === 1) {
     if (!cachedPaths.level1) {
       cachedPaths.level1 = createFullPath(canvasWidth, canvasHeight);
     }
     return [cachedPaths.level1];
-  }
-  // For level 2, return two paths
-  else if (level === 2) {
+  } else if (level === 2) {
     if (!cachedPaths.level2) {
-      // Generate two distinct paths
       const path1 = createFullPath(canvasWidth, canvasHeight, "upper");
       const path2 = createFullPath(canvasWidth, canvasHeight, "lower");
       cachedPaths.level2 = [path1, path2];
     }
     return cachedPaths.level2;
   }
-  // For other levels, generate new random paths
+
   return [createFullPath(canvasWidth, canvasHeight)];
 }
 
@@ -32,14 +27,13 @@ function createFullPath(canvasWidth, canvasHeight, pathType = "any") {
   const verticalStepSize = canvasHeight * 0.2;
   const checkpointInterval = canvasWidth / segmentCount;
 
-  // Adjust starting Y position based on path type
   let startY;
   if (pathType === "upper") {
-    startY = Math.floor(Math.random() * (canvasHeight * 0.4)); // Upper 40% of screen
+    startY = Math.floor(Math.random() * (canvasHeight * 0.4));
   } else if (pathType === "lower") {
     startY = Math.floor(
       canvasHeight * 0.6 + Math.random() * (canvasHeight * 0.4)
-    ); // Lower 40% of screen
+    );
   } else {
     startY = Math.floor(Math.random() * canvasHeight);
   }
@@ -59,7 +53,6 @@ function createFullPath(canvasWidth, canvasHeight, pathType = "any") {
       currentX = Math.min(currentX + horizontalStep, targetX);
       lastMove = "horizontal";
     } else {
-      // Restrict vertical movement based on path type
       let verticalDirection;
       if (pathType === "upper") {
         verticalDirection = currentY < canvasHeight * 0.4 ? 1 : -1;
@@ -86,7 +79,6 @@ function createFullPath(canvasWidth, canvasHeight, pathType = "any") {
     if (currentX >= canvasWidth * 0.85) break;
   }
 
-  // Add intermediate waypoints
   for (let i = 0; i < 15; i++) {
     currentX = Math.min(currentX + canvasWidth * 0.05, canvasWidth * 0.95);
     const verticalRange =
@@ -101,7 +93,6 @@ function createFullPath(canvasWidth, canvasHeight, pathType = "any") {
     path.push({ x: currentX, y: currentY });
   }
 
-  // Ensure final point lands on right edge within appropriate zone
   let finalY;
   if (pathType === "upper") {
     finalY = Math.floor(Math.random() * (canvasHeight * 0.4));
@@ -118,21 +109,19 @@ function createFullPath(canvasWidth, canvasHeight, pathType = "any") {
 }
 
 function drawPath(ctx, path) {
-  if (path.length < 2) return; // Need at least 2 points to draw a line
+  if (path.length < 2) return;
 
   ctx.beginPath();
   ctx.lineWidth = 2;
-  ctx.strokeStyle = "red"; // Set the color of the path
+  ctx.strokeStyle = "red";
 
-  // Move to the starting point
   ctx.moveTo(path[0].x, path[0].y);
 
-  // Draw lines to each point in the path
   for (let i = 1; i < path.length; i++) {
     ctx.lineTo(path[i].x, path[i].y);
   }
 
-  ctx.stroke(); // Finalize the drawing
+  ctx.stroke();
 }
 
 function generateDualMap(tileSize, mapWidth, mapHeight, paths) {
@@ -141,7 +130,6 @@ function generateDualMap(tileSize, mapWidth, mapHeight, paths) {
     .map(() => Array(mapWidth).fill(0));
   const pathPadding = 1;
 
-  // Mark both paths on the map
   paths.forEach((path) => {
     for (let i = 0; i < path.length - 1; i++) {
       const startX = Math.floor(path[i].x / tileSize);
@@ -169,13 +157,12 @@ function generateDualMap(tileSize, mapWidth, mapHeight, paths) {
     }
   });
 
-  // Enhanced pond generation with varied sizes and shapes
-  const pondCount = Math.floor((mapWidth * mapHeight) / 150); // Increased pond density
+  const pondCount = Math.floor((mapWidth * mapHeight) / 150);
   for (let i = 0; i < pondCount; i++) {
     const centerX = Math.floor(Math.random() * mapWidth);
     const centerY = Math.floor(Math.random() * mapHeight);
-    const radius = Math.floor(Math.random() * 4) + 2; // Varied pond sizes
-    const irregularity = Math.random() * 0.3; // Makes ponds less perfectly circular
+    const radius = Math.floor(Math.random() * 4) + 2;
+    const irregularity = Math.random() * 0.3;
 
     let isValidPond = true;
     for (let y = -radius; y <= radius; y++) {
@@ -210,9 +197,9 @@ function generateDualMap(tileSize, mapWidth, mapHeight, paths) {
           if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight) {
             const dist = Math.hypot(x, y);
             if (dist <= radius * distortion) {
-              mapData[ny][nx] = 2; // Water
+              mapData[ny][nx] = 2;
             } else if (dist <= (radius + 0.5) * distortion) {
-              mapData[ny][nx] = 6; // Water edge
+              mapData[ny][nx] = 6;
             }
           }
         }
@@ -220,23 +207,22 @@ function generateDualMap(tileSize, mapWidth, mapHeight, paths) {
     }
   }
 
-  // Enhanced vegetation and rock distribution
   for (let y = 0; y < mapHeight; y++) {
     for (let x = 0; x < mapWidth; x++) {
       if (mapData[y][x] === 0) {
         const randomValue = Math.random();
-        const nearWater = checkNearbyTiles(mapData, x, y, 2, 2); // Check if near water
+        const nearWater = checkNearbyTiles(mapData, x, y, 2, 2);
 
         if (nearWater && randomValue < 0.15) {
-          mapData[y][x] = 3; // More dense vegetation near water
+          mapData[y][x] = 3;
         } else if (randomValue < 0.04) {
-          mapData[y][x] = 3; // Regular vegetation
+          mapData[y][x] = 3;
         } else if (randomValue < 0.06) {
-          mapData[y][x] = 4; // Rocks
+          mapData[y][x] = 4;
         } else if (randomValue < 0.08) {
-          mapData[y][x] = 7; // Small vegetation patches
+          mapData[y][x] = 7;
         } else {
-          mapData[y][x] = 2927; // Placement area
+          mapData[y][x] = 2927;
         }
       }
     }
@@ -272,14 +258,12 @@ function drawPathWithBackground(
   tileSize,
   mapData
 ) {
-  // Create gradient background
   const gradient = ctx.createLinearGradient(0, 0, 0, canvasHeight);
   gradient.addColorStop(0, "#90c090");
   gradient.addColorStop(1, "#78b078");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  // Add subtle noise texture
   ctx.globalAlpha = 0.1;
   for (let i = 0; i < 8000; i++) {
     const x = Math.random() * canvasWidth;
@@ -290,7 +274,6 @@ function drawPathWithBackground(
   }
   ctx.globalAlpha = 1;
 
-  // Draw terrain features
   for (let y = 0; y < mapData.length; y++) {
     for (let x = 0; x < mapData[y].length; x++) {
       const tile = mapData[y][x];
@@ -298,10 +281,10 @@ function drawPathWithBackground(
       const posY = y * tileSize;
 
       switch (tile) {
-        case 2: // Water
+        case 2:
           ctx.fillStyle = "#4fa4ff";
           ctx.fillRect(posX, posY, tileSize, tileSize);
-          // Add water sparkle
+
           if (Math.random() < 0.1) {
             ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
             ctx.beginPath();
@@ -315,7 +298,7 @@ function drawPathWithBackground(
             ctx.fill();
           }
           break;
-        case 3: // Bush
+        case 3:
           ctx.fillStyle = "#2d5a27";
           ctx.beginPath();
           ctx.arc(
@@ -327,7 +310,7 @@ function drawPathWithBackground(
           );
           ctx.fill();
           break;
-        case 4: // Rock
+        case 4:
           const rockGradient = ctx.createRadialGradient(
             posX + tileSize / 2,
             posY + tileSize / 2,
@@ -349,15 +332,15 @@ function drawPathWithBackground(
           );
           ctx.fill();
           break;
-        case 5: // Path edge
+        case 5:
           ctx.fillStyle = "#b5a273";
           ctx.fillRect(posX, posY, tileSize, tileSize);
           break;
-        case 6: // Water edge
+        case 6:
           ctx.fillStyle = "#3d82cc";
           ctx.fillRect(posX, posY, tileSize, tileSize);
           break;
-        case 7: // Small vegetation
+        case 7:
           ctx.fillStyle = "#3a6b33";
           ctx.beginPath();
           ctx.arc(
@@ -373,9 +356,7 @@ function drawPathWithBackground(
     }
   }
 
-  // Draw paths with enhanced styling
   paths.forEach((path, index) => {
-    // Draw path shadow
     ctx.beginPath();
     ctx.lineWidth = 22;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
@@ -388,7 +369,6 @@ function drawPathWithBackground(
     }
     ctx.stroke();
 
-    // Draw main path
     ctx.beginPath();
     ctx.lineWidth = 20;
     ctx.strokeStyle = "#d4c4a8";
@@ -401,7 +381,6 @@ function drawPathWithBackground(
     }
     ctx.stroke();
 
-    // Add path texture
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
     for (let i = 0; i < path.length - 1; i++) {
